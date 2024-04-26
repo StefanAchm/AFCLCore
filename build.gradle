@@ -1,38 +1,41 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
-    }
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'jacoco'
+    id 'application'
+    id "org.sonarqube" version "2.7"
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-plugins {
-    id "org.sonarqube" version "2.7"
+group 'com.dps'
+version '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+repositories {
+    mavenCentral()
 }
 
 sonarqube {
     properties {
         property "sonar.projectName", "afclCore"
         // Check that this one is the same as the one used in the buildBreaker.py
-	     property "sonar.projectKey", "abo:afclCore"	     
-	     // URL of the sonarQube host (comment out when working with SonarQube in localhost)
-		 property "sonar.host.url", "http://138.232.66.154:3000"
+        property "sonar.projectKey", "abo:afclCore"
+        // URL of the sonarQube host (comment out when working with SonarQube in localhost)
+        property "sonar.host.url", "http://138.232.66.154:3000"
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'jacoco'
-    jacoco {
-		toolVersion = "0.8.5"
-	}
-apply plugin: 'com.github.johnrengelman.shadow'
+//     jacoco {
+//		toolVersion = "0.8.5"
+//	}
 
 jacocoTestReport {
     reports {
-        xml.enabled true
-        html.enabled true
+        xml.required = true
+        html.required = true
     }
 }
 
@@ -42,35 +45,37 @@ jar {
     }
 }
 
-group 'com.dps'
-version '1.0-SNAPSHOT'
-
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.+'
-    testCompile group: 'org.meanbean', name: 'meanbean', version: '2.0.3'
-    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version:'2.9.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.9.8'
-    compile group: 'org.yaml', name: 'snakeyaml', version:'1.23'
-    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-jsonSchema', version:'2.9.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.9.8'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:'2.9.8'
-    compile group: 'com.github.fge', name: 'json-schema-validator', version:'2.2.6'
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    testImplementation group: 'junit', name: 'junit', version: '4.+'
+
+    testImplementation group: 'org.meanbean', name: 'meanbean', version: '2.0.3'
+
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '2.2'
+
+    implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-jsonSchema', version: '2.17.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.17.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.17.0'
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.17.0'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.0'
+
+    implementation 'com.github.java-json-tools:json-schema-validator:2.2.14'
+
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-}
+distZip.dependsOn shadowJar
+distTar.dependsOn shadowJar
+startScripts.dependsOn shadowJar
+startShadowScripts.dependsOn jar
 
 shadowJar {
-    baseName = 'afclCore'
-    classifier = null
-    version = null
+    mainClassName = 'at.uibk.dps.afcl.Workflow'
+    archiveBaseName = 'afclCore'
+    archiveClassifier = null
+    archiveVersion = null
 }
